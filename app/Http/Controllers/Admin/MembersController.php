@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChurchMember;
 use Illuminate\Http\Request;
 use App\Models\Campus;
+use App\Models\Conversation;
 
 class MembersController extends Controller
 {
@@ -30,8 +31,9 @@ class MembersController extends Controller
 
         $campuses = Campus::all();
         $members = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        $conversations = Conversation::orderBy('created_at', 'desc')->paginate(20)->withQueryString();
 
-        return view('admin.members.index', compact('members', 'campuses'));
+        return view('admin.members.index', compact('members', 'campuses', 'conversations'));
     }
 
     public function show(ChurchMember $member)
