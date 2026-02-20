@@ -1,3 +1,4 @@
+{{-- Location: resources/views/admin/members/edit.blade.php --}}
 @include('components.g-header')
 @include('admin.components.nav')
 @include('admin.components.header')
@@ -19,18 +20,6 @@
         </div>
 
         <div class="main-content">
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="feather-alert-circle me-2"></i>
-                <strong>Please fix the following errors:</strong>
-                <ul class="mb-0 mt-1">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
             <div class="row justify-content-center">
                 <div class="col-xxl-6 col-xl-8">
                     <div class="card">
@@ -47,7 +36,8 @@
                                 <div class="mb-4">
                                     <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
                                     <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
-                                           value="{{ old('phone', $member->phone) }}" required />
+                                           placeholder="+2348012345678" value="{{ old('phone', $member->phone) }}" required />
+                                    <div class="form-text">Must start with +234 followed by 10 digits e.g. +2348012345678</div>
                                     @error('phone')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="mb-4">
