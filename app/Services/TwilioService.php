@@ -1,4 +1,5 @@
 <?php
+// Location: app/Services/TwilioService.php
 
 namespace App\Services;
 
@@ -43,15 +44,19 @@ class TwilioService
     }
 
     /**
-     * Send an SMS message
+     * Send an SMS message (with optional media URL for MMS)
      */
-    public function sendSMS(string $to, string $message): bool
+    public function sendSMS(string $to, string $message, ?string $mediaUrl = null): bool
     {
         $params = [
             'From' => $this->smsFrom,
             'To'   => $to,
             'Body' => $message,
         ];
+
+        if ($mediaUrl) {
+            $params['MediaUrl'] = $mediaUrl;
+        }
 
         return $this->sendMessage($params);
     }

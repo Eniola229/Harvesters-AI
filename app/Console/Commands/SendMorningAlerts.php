@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class SendMorningAlerts extends Command
 {
     protected $signature   = 'harvesters:morning-alerts';
-    protected $description = 'Send NEXT LEVEL PRAYER alerts to opted-in members';
+    protected $description = 'Send morning NLP devotional alerts to subscribed members';
 
     public function __construct(
         protected HarvestersAIService $aiService,
@@ -20,50 +20,49 @@ class SendMorningAlerts extends Command
         parent::__construct();
     }
 
-    public function handle(): int
-    {
-        // Skip Saturday (6) and Sunday (0)
-        if (in_array(now()->dayOfWeek, [0, 6])) {
-            $this->info('Skipping morning alerts — weekend.');
-            return 0;
-        }
-
-        $currentTime = now()->format('H:i');
-        $this->info("Running morning alerts at {$currentTime}...");
-
-        // Get members whose alert_time matches current time (within the current minute)
-        $members = ChurchMember::where('morning_alert', true)
-            ->where('is_active', true)
-            ->whereRaw("TIME_FORMAT(alert_time, '%H:%i') = ?", [$currentTime])
-            ->get();
-
-        if ($members->isEmpty()) {
-            $this->info("No alerts scheduled for {$currentTime}.");
-            return 0;
-        }
-
-        $this->info("Sending alerts to {$members->count()} members...");
-
-        foreach ($members as $member) {
-            try {
-                $devotional = $this->aiService->generateMorningDevotional($member);
-
-                if ($member->channel === 'whatsapp') {
-                    $this->twilioService->sendWhatsApp($member->phone, $devotional);
-                } else {
-                    $this->twilioService->sendSMS($member->phone, $devotional);
-                }
-
-                $this->info("✓ Sent to {$member->name} ({$member->phone})");
-                usleep(300000); // 0.3s delay between sends
-
-            } catch (\Exception $e) {
-                Log::error("Morning alert failed for {$member->id}: " . $e->getMessage());
-                $this->error("✗ Failed for {$member->name}: " . $e->getMessage());
-            }
-        }
-
-        $this->info('Morning alerts completed!');
+public function handle(): int
+{
+    // Skip Saturday (6) and Sunday (0)
+    if (in_array(now()->dayOfWeek, [0, 6])) {
+        $this->info('Skipping morning alerts — weekend.');
         return 0;
     }
+
+    $currentTime = now()->format('H:i');
+
+    $members = ChurchMember::where('morning_alert', true)
+        ->whereRaw("TIME_FORMAT(alert_time, '%H:%i') = ?", [$currentTime])
+        ->get();
+
+    if ($members->isEmpty()) {
+        return 0;  // ← this line
+    }
+
+    $this->info("Sending morning alerts to {$members->count()} members at {$currentTime}");
+
+    foreach ($members as $member) {
+        try {
+            $result   = $this->aiService->generateMorningDevotional($member);
+            $text     = $result['text'];
+            $mediaUrl = $result['media_url'] ?? null;
+
+            if ($member->channel === 'whatsapp') {
+                $this->twilioService->sendWhatsApp($member->phone, $text, $mediaUrl);
+            } else {
+                $this->twilioService->sendSMS($member->phone, $text, $mediaUrl);
+            }
+
+            $this->info("✓ Sent to {$member->name} ({$member->phone})");
+
+        } catch (\Exception $e) {
+            Log::error("Morning alert failed for {$member->phone}: " . $e->getMessage());
+            $this->error("✗ Failed for {$member->phone}: " . $e->getMessage());
+        }
+
+        usleep(300000);
+    }
+
+    $this->info('Morning alerts done.');
+    return 0;  // ← and this line
+}
 }

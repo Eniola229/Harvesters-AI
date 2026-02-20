@@ -20,18 +20,6 @@
         </div>
 
         <div class="main-content">
-            @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="feather-alert-circle me-2"></i>
-                    <strong>Please fix the following errors:</strong>
-                    <ul class="mb-0 mt-1">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
             <form method="POST" action="{{ route('admin.programs.update', $program->id) }}" enctype="multipart/form-data">
                 @csrf @method('PUT')
                 <div class="row">
@@ -74,42 +62,42 @@
                             <div class="card-body">
                                 <div class="mb-4">
                                     <label class="form-label fw-semibold">Bus Pickup Locations</label>
-                                    <input type="text" name="metadata[bus_locations]" class="form-control"
-                                           value="{{ old('metadata.bus_locations', $program->metadata['bus_locations'] ?? '') }}" />
+                                    <input type="text" name="meta_bus_locations" class="form-control"
+                                           value="{{ old('meta_bus_locations', $program->metadata['bus_locations'] ?? '') }}" />
                                 </div>
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Free Meal?</label>
-                                        <select name="metadata[free_meal]" class="form-select">
+                                        <select name="meta_free_meal" class="form-select">
                                             <option value="">— Select —</option>
-                                            <option value="yes" {{ old('metadata.free_meal', $program->metadata['free_meal'] ?? '') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                            <option value="no" {{ old('metadata.free_meal', $program->metadata['free_meal'] ?? '') == 'no' ? 'selected' : '' }}>No</option>
+                                            <option value="yes" {{ old('meta_free_meal', $program->metadata['free_meal'] ?? '') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                            <option value="no" {{ old('meta_free_meal', $program->metadata['free_meal'] ?? '') == 'no' ? 'selected' : '' }}>No</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Dress Code</label>
-                                        <input type="text" name="metadata[dress_code]" class="form-control"
-                                               value="{{ old('metadata.dress_code', $program->metadata['dress_code'] ?? '') }}" />
+                                        <input type="text" name="meta_dress_code" class="form-control"
+                                               value="{{ old('meta_dress_code', $program->metadata['dress_code'] ?? '') }}" />
                                     </div>
                                 </div>
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Registration Required?</label>
-                                        <select name="metadata[registration]" class="form-select">
+                                        <select name="meta_registration" class="form-select">
                                             <option value="">— Select —</option>
-                                            <option value="yes" {{ old('metadata.registration', $program->metadata['registration'] ?? '') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                            <option value="no" {{ old('metadata.registration', $program->metadata['registration'] ?? '') == 'no' ? 'selected' : '' }}>No</option>
+                                            <option value="yes" {{ old('meta_registration', $program->metadata['registration'] ?? '') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                            <option value="no" {{ old('meta_registration', $program->metadata['registration'] ?? '') == 'no' ? 'selected' : '' }}>No</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Contact Person</label>
-                                        <input type="text" name="metadata[contact]" class="form-control"
-                                               value="{{ old('metadata.contact', $program->metadata['contact'] ?? '') }}" />
+                                        <input type="text" name="meta_contact" class="form-control"
+                                               value="{{ old('meta_contact', $program->metadata['contact'] ?? '') }}" />
                                     </div>
                                 </div>
                                 <div class="mb-0">
                                     <label class="form-label fw-semibold">Additional Info</label>
-                                    <textarea name="metadata[extra]" class="form-control" rows="3">{{ old('metadata.extra', $program->metadata['extra'] ?? '') }}</textarea>
+                                    <textarea name="meta_extra" class="form-control" rows="3">{{ old('meta_extra', $program->metadata['extra'] ?? '') }}</textarea>
                                 </div>
                             </div>
                         </div>

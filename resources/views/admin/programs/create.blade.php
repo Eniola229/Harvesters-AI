@@ -20,18 +20,6 @@
         </div>
 
         <div class="main-content">
-            @if($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="feather-alert-circle me-2"></i>
-                    <strong>Please fix the following errors:</strong>
-                    <ul class="mb-0 mt-1">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
             <form method="POST" action="{{ route('admin.programs.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
@@ -76,14 +64,14 @@
                             <div class="card-body">
                                 <div class="mb-4">
                                     <label class="form-label fw-semibold">Bus Pickup Locations</label>
-                                    <input type="text" name="metadata[bus_locations]" class="form-control"
+                                    <input type="text" name="meta_bus_locations" class="form-control"
                                            placeholder="e.g. CMS Bus Stop, Gbagada Phase 2 junction, Ojota" value="{{ old('metadata.bus_locations') }}" />
                                     <div class="form-text">Separate multiple locations with commas</div>
                                 </div>
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Free Meal Available?</label>
-                                        <select name="metadata[free_meal]" class="form-select">
+                                        <select name="meta_free_meal" class="form-select">
                                             <option value="">— Select —</option>
                                             <option value="yes" {{ old('metadata.free_meal') == 'yes' ? 'selected' : '' }}>Yes</option>
                                             <option value="no" {{ old('metadata.free_meal') == 'no' ? 'selected' : '' }}>No</option>
@@ -91,14 +79,14 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Dress Code</label>
-                                        <input type="text" name="metadata[dress_code]" class="form-control"
+                                        <input type="text" name="meta_dress_code" class="form-control"
                                                placeholder="e.g. All white, Smart casual" value="{{ old('metadata.dress_code') }}" />
                                     </div>
                                 </div>
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Registration Required?</label>
-                                        <select name="metadata[registration]" class="form-select">
+                                        <select name="meta_registration" class="form-select">
                                             <option value="">— Select —</option>
                                             <option value="yes" {{ old('metadata.registration') == 'yes' ? 'selected' : '' }}>Yes</option>
                                             <option value="no" {{ old('metadata.registration') == 'no' ? 'selected' : '' }}>No</option>
@@ -106,13 +94,13 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label fw-semibold">Contact Person</label>
-                                        <input type="text" name="metadata[contact]" class="form-control"
+                                        <input type="text" name="meta_contact" class="form-control"
                                                placeholder="e.g. Pastor Mike — 08012345678" value="{{ old('metadata.contact') }}" />
                                     </div>
                                 </div>
                                 <div class="mb-0">
                                     <label class="form-label fw-semibold">Additional Info</label>
-                                    <textarea name="metadata[extra]" class="form-control" rows="3"
+                                    <textarea name="meta_extra" class="form-control" rows="3"
                                               placeholder="Any other important details...">{{ old('metadata.extra') }}</textarea>
                                 </div>
                             </div>
