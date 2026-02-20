@@ -13,9 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/whatsapp/webhook',
         ]);
+        $middleware->redirectGuestsTo(fn() => route('admin.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
-            return redirect()->route('admin.login');
-        });
+        //
     })->create();
