@@ -46,7 +46,6 @@ class MembersController extends Controller
 
     public function store(Request $request)
     {
-        // Handle bulk upload
         if ($request->hasFile('bulk_file')) {
             return $this->bulkStore($request);
         }
@@ -61,7 +60,9 @@ class MembersController extends Controller
             'phone.regex' => 'Phone number must start with +234 followed by 10 digits (e.g. +2348012345678).',
         ]);
 
-        $data['channel'] = $request->channel ?? 'whatsapp';
+        $data['channel']    = $request->channel ?? 'whatsapp';
+        $data['alert_time'] = $request->alert_time ?: '06:00:00';
+
         ChurchMember::create($data);
         return redirect()->route('admin.members.index')->with('success', 'Member added successfully!');
     }

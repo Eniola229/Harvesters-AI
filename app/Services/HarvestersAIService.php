@@ -241,7 +241,7 @@ class HarvestersAIService
 
         $member = ChurchMember::create([
             'name'                => ucwords(strtolower($name)),
-            'phone'               => $phone,
+            'phone'               => str_replace('whatsapp:', '', $phone),
             'channel'             => $channel,
             'last_interaction_at' => now(),
         ]);
