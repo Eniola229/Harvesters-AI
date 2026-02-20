@@ -33,7 +33,7 @@ class NewsletterController extends Controller
         $data = $request->validate([
             'title'         => 'required|string|max:200',
             'message'       => 'required|string',
-            'target_campus' => 'required|string',
+            'target_campus' => 'nullable|string',
             'media'         => 'nullable|file|max:51200|mimes:jpg,jpeg,png,gif,mp4,mov,avi',
         ]);
 
