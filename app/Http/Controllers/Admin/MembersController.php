@@ -38,9 +38,12 @@ class MembersController extends Controller
 
     public function show(ChurchMember $member)
     {
-        $member->load(['conversations.messages' => fn($q) => $q->orderBy('created_at', 'desc')->take(20)]);
-        $conversations = Conversation::orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.members.show', compact('member', 'conversations')); 
+        $conversations = $member->conversations()
+            ->with(['messages' => fn($q) => $q->orderBy('created_at', 'asc')])
+            ->latest()
+            ->paginate(5);
+
+        return view('admin.members.show', compact('member', 'conversations'));
     }
 
     public function create()
