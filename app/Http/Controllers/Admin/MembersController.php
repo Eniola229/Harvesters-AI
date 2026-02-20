@@ -40,7 +40,7 @@ class MembersController extends Controller
     {
         $member->load(['conversations.messages' => fn($q) => $q->orderBy('created_at', 'desc')->take(20)]);
         $conversations = Conversation::orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-        return view('admin.members.show', compact('member', 'conversations'));
+        return view('admin.members.show', compact('member', 'conversations')); 
     }
 
     public function create()
