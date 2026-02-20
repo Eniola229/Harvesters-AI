@@ -31,15 +31,16 @@ class MembersController extends Controller
 
         $campuses = Campus::all();
         $members = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-        $conversations = Conversation::orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        
 
-        return view('admin.members.index', compact('members', 'campuses', 'conversations'));
+        return view('admin.members.index', compact('members', 'campuses'));
     }
 
     public function show(ChurchMember $member)
     {
         $member->load(['conversations.messages' => fn($q) => $q->orderBy('created_at', 'desc')->take(20)]);
-        return view('admin.members.show', compact('member'));
+        $conversations = Conversation::orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        return view('admin.members.show', compact('member', 'conversations'));
     }
 
     public function create()
