@@ -36,20 +36,25 @@ class HarvestersAIService
         string $channel = 'whatsapp',
         ?string $mediaUrl = null
     ): array {
+        // Always strip whatsapp: prefix before any lookup
+        $cleanPhone = str_replace('whatsapp:', '', $phone);
+
         $conversation = Conversation::firstOrCreate(
-            ['phone' => $phone, 'channel' => $channel],
+            ['phone' => $cleanPhone, 'channel' => $channel],
             ['state' => 'active']
         );
 
         if (!$conversation->member_id) {
-            $member = ChurchMember::where('phone', $phone)->first();
+            // Try to find member by clean phone
+            $member = ChurchMember::where('phone', $cleanPhone)->first();
             if ($member) {
-                $conversation->update(['member_id' => $member->id]);
+                $conversation->update(['member_id' => $member->id, 'state' => 'active']);
             }
         }
 
-        if ($conversation->state === 'waiting_name') {
-            return $this->handleNameRegistration($conversation, $userMessage, $phone, $channel);
+        // If state is waiting_name but member was just found above, skip name registration
+        if ($conversation->state === 'waiting_name' && !$conversation->member_id) {
+            return $this->handleNameRegistration($conversation, $userMessage, $cleanPhone, $channel);
         }
 
         $member = $conversation->member;
@@ -68,7 +73,7 @@ class HarvestersAIService
         ]);
 
         $conversation->addToContext('user', $userMessage);
-        $member->update(['last_interaction_at' => now()]);
+        $member->update(['last_interaction_at' => now(), 'phone' => $cleanPhone]);
 
         $commandResult = $this->checkSpecialCommands($userMessage, $member);
         if ($commandResult) {
@@ -241,7 +246,7 @@ class HarvestersAIService
 
         $member = ChurchMember::create([
             'name'                => ucwords(strtolower($name)),
-            'phone'               => str_replace('whatsapp:', '', $phone),
+            'phone'               => $phone,
             'channel'             => $channel,
             'last_interaction_at' => now(),
         ]);
