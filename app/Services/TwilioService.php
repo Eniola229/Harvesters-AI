@@ -1,6 +1,5 @@
 <?php
 // Location: app/Services/TwilioService.php
-
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
@@ -13,18 +12,20 @@ class TwilioService
     protected string $whatsappFrom;
     protected string $smsFrom;
     protected string $baseUrl;
+    protected string $contentBaseUrl;
 
     public function __construct()
     {
-        $this->sid          = config('services.twilio.sid');
-        $this->authToken    = config('services.twilio.auth_token');
-        $this->whatsappFrom = config('services.twilio.whatsapp_from', 'whatsapp:+14155238886');
-        $this->smsFrom      = config('services.twilio.sms_from');
-        $this->baseUrl      = "https://api.twilio.com/2010-04-01/Accounts/{$this->sid}";
+        $this->sid            = config('services.twilio.sid');
+        $this->authToken      = config('services.twilio.auth_token');
+        $this->whatsappFrom   = config('services.twilio.whatsapp_from', 'whatsapp:+14155238886');
+        $this->smsFrom        = config('services.twilio.sms_from');
+        $this->baseUrl        = "https://api.twilio.com/2010-04-01/Accounts/{$this->sid}";
+        $this->contentBaseUrl = "https://api.twilio.com/2010-04-01/Accounts/{$this->sid}";
     }
 
     /**
-     * Send a WhatsApp message
+     * Send a WhatsApp message (only works within 24hr session window)
      */
     public function sendWhatsApp(string $to, string $message, ?string $mediaUrl = null): bool
     {
@@ -44,7 +45,49 @@ class TwilioService
     }
 
     /**
-     * Send an SMS message (with optional media URL for MMS)
+     * Send a WhatsApp Template Message (works for cold contacts / outside 24hr window)
+     *
+     * @param string $to            Phone in any format — will be normalised
+     * @param string $templateSid   The HX... SID from your Twilio console
+     * @param array  $variables     e.g. ['1' => 'Title here', '2' => 'Body text here']
+     */
+    public function sendWhatsAppTemplate(string $to, string $templateSid, array $variables = []): bool
+    {
+        $to = str_starts_with($to, 'whatsapp:') ? $to : "whatsapp:{$to}";
+
+        $params = [
+            'From'             => $this->whatsappFrom,
+            'To'               => $to,
+            'ContentSid'       => $templateSid,
+            'ContentVariables' => json_encode($variables),
+        ];
+
+        try {
+            $response = Http::withBasicAuth($this->sid, $this->authToken)
+                ->asForm()
+                ->post("{$this->contentBaseUrl}/Messages.json", $params);
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            Log::error('Twilio template send failed', [
+                'status' => $response->status(),
+                'body'   => $response->json(),
+                'to'     => $to,
+                'sid'    => $templateSid,
+            ]);
+
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error('Twilio template exception: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send an SMS message
      */
     public function sendSMS(string $to, string $message, ?string $mediaUrl = null): bool
     {
@@ -83,10 +126,10 @@ class TwilioService
                 } else {
                     $sent = $this->sendSMS($phone, $message);
                 }
-                if ($sent) $successCount++;
 
-                // Small delay to avoid rate limiting
-                usleep(200000); // 0.2 seconds
+                if ($sent) $successCount++;
+                usleep(200000);
+
             } catch (\Exception $e) {
                 Log::error("Broadcast failed for {$phone}: " . $e->getMessage());
             }
